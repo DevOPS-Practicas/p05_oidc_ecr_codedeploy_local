@@ -1,7 +1,7 @@
 services:
   backend:
     container_name: backend-codedeploy
-    image: ${ECR_URI:-157611948522.dkr.ecr.us-east-1.amazonaws.com/taller-devops-monorepo}:backend-${IMAGE_TAG:-latest}
+    image: ${ECR_URI:-213680573274.dkr.ecr.us-east-1.amazonaws.com/taller-devops-monorepo}:backend-${IMAGE_TAG:-latest}
     expose:
       - "8000"
     networks:
@@ -23,7 +23,7 @@ services:
 
   frontend:
     container_name: frontend-codedeploy
-    image: ${ECR_URI:-157611948522.dkr.ecr.us-east-1.amazonaws.com/taller-devops-monorepo}:frontend-${IMAGE_TAG:-latest}
+    image: ${ECR_URI:-213680573274.dkr.ecr.us-east-1.amazonaws.com/taller-devops-monorepo}:frontend-${IMAGE_TAG:-latest}
     ports:
       - "3000:8080"
     depends_on:
