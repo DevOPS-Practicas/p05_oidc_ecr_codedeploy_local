@@ -4,24 +4,17 @@ set -euo pipefail
 # Configuración
 AWS_REGION="${AWS_REGION:-us-east-1}"
 ECR_REPO_NAME="taller-devops-monorepo"
-ACCOUNT_ID="157611948522"
+ACCOUNT_ID="213680573274"
 ECR_URI="${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}"
-
-if [ -f "/opt/mi-app/.app-version" ]; then
-    IMAGE_TAG_FILE=$(cat /opt/mi-app/.app-version | tr -d '\n\r')
-    IMAGE_TAG="${IMAGE_TAG:-$IMAGE_TAG_FILE}"
-else
-    IMAGE_TAG="${IMAGE_TAG:-latest}"
-fi
+IMAGE_TAG="${IMAGE_TAG:-latest}"
 
 echo "🚀 Iniciando despliegue desde ECR..."
 echo "📦 URI: ${ECR_URI}"
-echo "🏷️  Tag: ${IMAGE_TAG}"
+echo "🏷️ Tag: ${IMAGE_TAG}"
 
 cd /opt/mi-app
 
-
-# 🔐 Verificar credenciales AWS
+# Verificar credenciales AWS
 echo "🔐 Verificando credenciales AWS..."
 
 # Opción 1: Usar variables de entorno
@@ -30,18 +23,21 @@ if [ -n "${AWS_ACCESS_KEY_ID:-}" ] && [ -n "${AWS_SECRET_ACCESS_KEY:-}" ]; then
     export AWS_ACCESS_KEY_ID="${AWS_ACCESS_KEY_ID}"
     export AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY}"
     export AWS_REGION="${AWS_REGION}"
+
 # Opción 2: Usar archivo de credenciales de AWS CLI
 elif [ -f "${HOME}/.aws/credentials" ]; then
     echo "✅ Usando credenciales de ~/.aws/credentials"
     export AWS_ACCESS_KEY_ID=$(aws configure get aws_access_key_id)
     export AWS_SECRET_ACCESS_KEY=$(aws configure get aws_secret_access_key)
     export AWS_REGION=$(aws configure get region)
+
 # Opción 3: Usar archivo de credenciales del usuario root
 elif [ -f "/root/.aws/credentials" ]; then
     echo "✅ Usando credenciales de /root/.aws/credentials"
     export AWS_ACCESS_KEY_ID=$(sudo aws configure get aws_access_key_id)
     export AWS_SECRET_ACCESS_KEY=$(sudo aws configure get aws_secret_access_key)
     export AWS_REGION=$(sudo aws configure get region)
+
 else
     echo "❌ Error: No se encontraron credenciales AWS"
     echo "🔧 Solución:"
@@ -63,7 +59,7 @@ echo "👤 Usuario: $(aws sts get-caller-identity --query Arn --output text)"
 # Autenticarse en ECR
 echo "🔐 Autenticando en ECR..."
 if ! aws ecr get-login-password --region ${AWS_REGION} | \
-     docker login --username AWS --password-stdin ${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com; then
+    docker login --username AWS --password-stdin ${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com; then
     echo "❌ Error: Falló la autenticación en ECR"
     echo "🔍 Diagnóstico:"
     echo "  - ¿El usuario tiene permisos para ECR?"
@@ -83,7 +79,7 @@ echo "🛑 Deteniendo contenedores actuales..."
 docker compose -f docker-compose.yml down --remove-orphans || true
 
 # Descargar imágenes desde ECR
-echo "⬇️  Descargando imágenes desde ECR..."
+echo "⬇️ Descargando imágenes desde ECR..."
 docker compose -f docker-compose.yml pull
 
 # Levantar contenedores
@@ -100,7 +96,7 @@ echo "🏥 Verificando health checks..."
 if docker compose -f docker-compose.yml ps --format json | grep -q '"Health":"healthy"'; then
     echo "✅ Todos los servicios están saludables"
 else
-    echo "⚠️  Algunos servicios pueden no estar saludables. Revisa los logs:"
+    echo "⚠️ Algunos servicios pueden no estar saludables. Revisa los logs:"
     docker compose -f docker-compose.yml logs --tail=50
 fi
 

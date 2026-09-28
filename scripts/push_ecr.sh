@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Configuración
 AWS_REGION="us-east-1"
-ACCOUNT_ID="157611948522"
+ACCOUNT_ID="213680573274"
 ECR_REPO_NAME="taller-devops-monorepo"
 ECR_URI="${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}"
 IMAGE_TAG="${1:-latest}"
@@ -20,7 +20,7 @@ aws ecr get-login-password --region ${AWS_REGION} | \
 
 # Construir backend
 echo "🏗️ Construyendo backend..."
-cd /home/hernan96/Documents/Taller-DevOps-Monorepo-AWS
+cd /home/jonatan-hernandez/Taller-DevOps-Monorepo-CodeDeploy-OnPremise
 docker build -t taller-devops-monorepo-backend:${IMAGE_TAG} ./backend
 
 # Construir frontend
